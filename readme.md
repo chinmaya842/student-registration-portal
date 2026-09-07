@@ -1,62 +1,35 @@
-# MERN Authentication Starter
+# Student Registration Portal
 
-This is a starter app for a MERN stack application with authentication. This is for a SPA (Single Page Application) workflow that uses the [Vite](https://vite.dev) Build tool. This authentication workflow is based off of my [MERN Stack From Scratch | eCommerce](https://www.traversymedia.com/mern-stack-from-scratch) course.
+A full-stack MERN application for managing student registrations, built as part of the TechnGlobal Full Stack Development capstone project.
 
-<img src="./frontend/public/screen.png" />
+## Live Demo
+https://student-registration-portal-mw0z.onrender.com
 
-It includes the following:
+## Features
+- Student registration with name, email, student ID, course, and password
+- Secure login with JWT stored in HTTP-only cookies
+- Profile viewing and editing (update name, email, student ID, course, password)
+- Delete student record
+- Input validation (duplicate email check, password confirmation, required fields)
 
-- Backend API with Express & MongoDB
-- Routes for auth, logout, register, profile, update profile
-- JWT authentication stored in HTTP-only cookie
-- Protected routes and endpoints
-- Custom middleware to check JSON web token and store in cookie
-- Custom error middleware
-- React frontend to register, login, logout, view profile, and update profile
-- React Bootstrap UI library
-- React Toastify notifications
+## Tech Stack
+- **Frontend:** React, Redux Toolkit, React Bootstrap
+- **Backend:** Node.js, Express
+- **Database:** MongoDB (Mongoose)
+- **Authentication:** JWT (JSON Web Tokens), bcrypt for password hashing
 
-## Usage
+## API Endpoints
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | /api/users | Public | Register a new student |
+| POST | /api/users/auth | Public | Login |
+| POST | /api/users/logout | Public | Logout |
+| GET | /api/users/profile | Private | Get logged-in student's profile |
+| PUT | /api/users/profile | Private | Update student profile |
+| DELETE | /api/users/profile | Private | Delete student record |
 
-- Create a MongoDB database and obtain your `MongoDB URI` - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
-- Create a PayPal account and obtain your `Client ID` - [PayPal Developer](https://developer.paypal.com/)
-
-### Env Variables
-
-Rename the `.env.example` file to `.env` and add the following
-
-```
-NODE_ENV = development
-PORT = 5000
-MONGO_URI = your mongodb uri
-JWT_SECRET = 'abc123'
-```
-
-Change the JWT_SECRET to what you want
-
-### Install Dependencies (frontend & backend)
-
-```
-npm install
-cd frontend
-npm install
-```
-
-### Run
-
-```
-
-# Run frontend (:3000) & backend (:5000)
-npm run dev
-
-# Run backend only
-npm run server
-```
-
-## Build & Deploy
-
-```
-# Create frontend prod build
-cd frontend
-npm run build
-```
+## Running Locally
+1. Clone the repo
+2. Run `npm install` in the root, then `npm install` inside `/frontend`
+3. Create a `.env` file in the root with `MONGO_URI`, `JWT_SECRET`, `NODE_ENV=development`, `PORT=5000`
+4. Run `npm run dev`
