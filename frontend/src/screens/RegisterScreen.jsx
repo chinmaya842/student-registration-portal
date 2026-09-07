@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import FormContainer from '../components/FormContainer';
 import Loader from '../components/Loader';
-// import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRegisterMutation } from '../slices/usersApiSlice';
@@ -14,6 +13,8 @@ const RegisterScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [course, setCourse] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,7 +36,13 @@ const RegisterScreen = () => {
       toast.error('Passwords do not match');
     } else {
       try {
-        const res = await register({ name, email, password }).unwrap();
+        const res = await register({
+          name,
+          email,
+          password,
+          studentId,
+          course,
+        }).unwrap();
         dispatch(setCredentials({ ...res }));
         navigate('/');
       } catch (err) {
@@ -45,7 +52,7 @@ const RegisterScreen = () => {
   };
   return (
     <FormContainer>
-      <h1>Register</h1>
+      <h1>Student Registration</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group className='my-2' controlId='name'>
           <Form.Label>Name</Form.Label>
@@ -64,6 +71,26 @@ const RegisterScreen = () => {
             placeholder='Enter email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+
+        <Form.Group className='my-2' controlId='studentId'>
+          <Form.Label>Student ID</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter student ID'
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+
+        <Form.Group className='my-2' controlId='course'>
+          <Form.Label>Course</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter course enrolled'
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
           ></Form.Control>
         </Form.Group>
 

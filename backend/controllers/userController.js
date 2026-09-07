@@ -2,9 +2,6 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
 
-// @desc    Auth user & get token
-// @route   POST /api/users/auth
-// @access  Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -17,6 +14,8 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      studentId: user.studentId,
+      course: user.course,
     });
   } else {
     res.status(401);
@@ -24,11 +23,8 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Register a new user
-// @route   POST /api/users
-// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, studentId, course } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -41,6 +37,8 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    studentId,
+    course,
   });
 
   if (user) {
@@ -50,6 +48,8 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      studentId: user.studentId,
+      course: user.course,
     });
   } else {
     res.status(400);
@@ -57,9 +57,6 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/users/logout
-// @access  Public
 const logoutUser = (req, res) => {
   res.cookie('jwt', '', {
     httpOnly: true,
@@ -68,9 +65,6 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -79,6 +73,8 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      studentId: user.studentId,
+      course: user.course,
     });
   } else {
     res.status(404);
@@ -86,15 +82,14 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    user.studentId = req.body.studentId || user.studentId;
+    user.course = req.body.course || user.course;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -106,16 +101,39 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      studentId: updatedUser.studentId,
+      course: updatedUser.course,
     });
   } else {
     res.status(404);
     throw new Error('User not found');
   }
 });
+
+// @desc    Delete user profile (record)
+// @route   DELETE /api/users/profile
+// @access  Private
+const deleteUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    await User.deleteOne({ _id: user._id });
+    res.cookie('jwt', '', {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.json({ message: 'Student record deleted' });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
 export {
   authUser,
   registerUser,
   logoutUser,
   getUserProfile,
   updateUserProfile,
+  deleteUserProfile,
 };

@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react';
-// import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import FormContainer from '../components/FormContainer';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
 import { useUpdateUserMutation } from '../slices/usersApiSlice';
-import { setCredentials } from '../slices/authSlice';
+import { setCredentials, logout } from '../slices/authSlice';
 
 const ProfileScreen = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [course, setCourse] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -23,7 +26,9 @@ const ProfileScreen = () => {
   useEffect(() => {
     setName(userInfo.name);
     setEmail(userInfo.email);
-  }, [userInfo.email, userInfo.name]);
+    setStudentId(userInfo.studentId || '');
+    setCourse(userInfo.course || '');
+  }, [userInfo]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -35,9 +40,10 @@ const ProfileScreen = () => {
           _id: userInfo._id,
           name,
           email,
+          studentId,
+          course,
           password,
         }).unwrap();
-        console.log(res);
         dispatch(setCredentials(res));
         toast.success('Profile updated successfully');
       } catch (err) {
@@ -45,9 +51,30 @@ const ProfileScreen = () => {
       }
     }
   };
+
+  const deleteHandler = async () => {
+    if (window.confirm('Are you sure you want to delete this student record? This cannot be undone.')) {
+      try {
+        const res = await fetch('/api/users/profile', {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (res.ok) {
+          toast.success('Student record deleted');
+          dispatch(logout());
+          navigate('/login');
+        } else {
+          toast.error('Failed to delete record');
+        }
+      } catch (err) {
+        toast.error('Failed to delete record');
+      }
+    }
+  };
+
   return (
     <FormContainer>
-      <h1>Update Profile</h1>
+      <h1>Student Profile</h1>
 
       <Form onSubmit={submitHandler}>
         <Form.Group className='my-2' controlId='name'>
@@ -66,6 +93,24 @@ const ProfileScreen = () => {
             placeholder='Enter email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className='my-2' controlId='studentId'>
+          <Form.Label>Student ID</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter student ID'
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className='my-2' controlId='course'>
+          <Form.Label>Course</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter course enrolled'
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
           ></Form.Control>
         </Form.Group>
         <Form.Group className='my-2' controlId='password'>
@@ -90,6 +135,14 @@ const ProfileScreen = () => {
 
         <Button type='submit' variant='primary' className='mt-3'>
           Update
+        </Button>
+        <Button
+          type='button'
+          variant='danger'
+          className='mt-3 mx-2'
+          onClick={deleteHandler}
+        >
+          Delete My Record
         </Button>
 
         {isLoading && <Loader />}
